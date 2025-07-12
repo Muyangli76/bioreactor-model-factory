@@ -1,0 +1,23 @@
+# 🔐 Secrets
+.streamlit/secrets.toml
+.env
+
+# 📁 Data
+data/
+*.csv  # Extra safety — in case data/ isn't used
+
+# 💾 Model Artifacts
+models/
+outputs/
+mlruns/
+*.joblib
+
+# 🧪 Environment
+venv/
+*.pyc
+__pycache__/
+
+# ⚙️ Jupyter/IDE/OS Clutter
+.DS_Store
+*.ipynb_checkpoints
+screenshot/
