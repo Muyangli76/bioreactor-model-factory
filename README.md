@@ -4,6 +4,7 @@ A full-stack ML pipeline for modeling bioprocess variables (e.g. Dissolved Oxyge
 
 > Built with 🧠 Scikit-learn + 🧪 SHAP + ⚡ Streamlit + 🤖 OpenAI
 
+Demo Video: https://www.loom.com/share/0a0db17bb29047c0ae7c013284048ce1?sid=b4925f00-bd76-4cc5-863b-09b1d098350f
 ---
 
 ## 🌟 Features
@@ -33,7 +34,7 @@ Live residual tracking with anomaly flags:
 
 ### 🧬 SHAP + LLM Explainer
 Explain model output and features using SHAP + GPT:
-<img width="669" height="620" alt="SHAP explainer" src="https://github.com/user-attachments/assets/68ebf2fe-592e-4216-9220-841c23032fba" />
+<img width="689" height="977" alt="Screenshot 2025-07-12 164053" src="https://github.com/user-attachments/assets/72f0f1c2-5b6a-458f-a569-ab83cbaba991" />
 
 ---
 
