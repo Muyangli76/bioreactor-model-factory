@@ -4,6 +4,7 @@ import openai
 import streamlit as st
 import pandas as pd
 from PIL import Image
+from sklearn.metrics import mean_absolute_error, r2_score
 
 # === 🔐 Load OpenAI API key from .streamlit/secrets.toml ===
 openai.api_key = st.secrets["openai_key"]
@@ -47,7 +48,10 @@ with tab1:
             pred = model.predict(df_input)[0]
             st.success(f"Predicted **{y_target}**: `{pred:.3f}`")
 with tab3:
-    # === SHAP Summary ===
+    import joblib
+    from sklearn.metrics import r2_score, mean_absolute_error
+
+    # === Load SHAP Summary Image ===
     summary_path = next(
         (os.path.join(PLOT_DIR, f) for f in os.listdir(PLOT_DIR) if y_target in f and "summary" in f),
         None
@@ -55,16 +59,36 @@ with tab3:
 
     if summary_path:
         st.subheader("📊 SHAP Summary")
+
+        # 📈 Load data and model
+        df_full = pd.read_csv("data/df_clipped_v1.csv")
+        model_path = f"models/{y_target}_RandomForestRegressor.joblib"
+        model = joblib.load(model_path)
+
+        # 📉 Drop NaNs before prediction
+        df_full = df_full.dropna(subset=[y_target])
+        X_all = df_full.drop(columns=["SAP", "Age", y_target], errors="ignore")
+        X_all = X_all.dropna()
+        y_all = df_full.loc[X_all.index, y_target]
+
+        # ✅ Predict and score
+        y_pred = model.predict(X_all)
+        r2 = r2_score(y_all, y_pred)
+        mae = mean_absolute_error(y_all, y_pred)
+
+        st.markdown(f"**Model Performance:**  \n📌 R² = `{r2:.3f}` 📌 MAE = `{mae:.3f}`")
+
+        # 🖼️ SHAP Plot
         zoom = st.checkbox("🔍 Full-Size Summary View")
         img = Image.open(summary_path)
         if zoom:
-            st.image(img, use_column_width=True)
+            st.image(img, use_container_width=True)
         else:
-            st.image(img.resize((900, 500)), use_column_width=False)
+            st.image(img.resize((900, 500)), use_container_width=False)
     else:
         st.warning("No SHAP summary plot found for this target.")
 
-    # === SHAP Dependence ===
+    # === SHAP Dependence Plots ===
     dep_plots = [f for f in os.listdir(PLOT_DIR) if y_target in f and "dep" in f]
     if dep_plots:
         st.subheader("🔍 Top Feature Dependence")
@@ -73,12 +97,13 @@ with tab3:
             img_path = os.path.join(PLOT_DIR, plot)
             img = Image.open(img_path)
             if zoom_dep:
-                st.image(img, caption=plot.replace(".png", ""), use_column_width=True)
+                st.image(img, caption=plot.replace(".png", ""), use_container_width=True)
             else:
-                st.image(img.resize((900, 500)), caption=plot.replace(".png", ""), use_column_width=False)
+                st.image(img.resize((900, 500)), caption=plot.replace(".png", ""), use_container_width=False)
     else:
         st.info("No dependence plots found for this target.")
-    # === Model Explainer ===
+
+    # === LLM Explainer ===
     st.subheader("💬 Ask the Model Explainer")
     user_q = st.text_input("What would you like to ask about this model?", placeholder="e.g., Why is airflow important?")
 
